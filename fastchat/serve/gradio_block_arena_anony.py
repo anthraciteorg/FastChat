@@ -190,7 +190,7 @@ OUTAGE_MODELS = []
 def get_sample_weight(model, outage_models, sampling_weights, sampling_boost_models=[]):
     if model in outage_models:
         return 0
-    weight = sampling_weights.get(model, 0)
+    weight = sampling_weights.get(model, 1)
     if model in sampling_boost_models:
         weight *= 5
     return weight
@@ -290,7 +290,7 @@ def add_text(
     all_conv_text = (
         all_conv_text_left[-1000:] + all_conv_text_right[-1000:] + "\nuser: " + text
     )
-    flagged = moderation_filter(all_conv_text, model_list, do_moderation=True)
+    flagged = moderation_filter(all_conv_text, model_list, do_moderation=False)
     if flagged:
         logger.info(f"violate moderation (anony). ip: {ip}. text: {text}")
         # overwrite the original text

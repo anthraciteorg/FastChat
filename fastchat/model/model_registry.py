@@ -886,3 +886,13 @@ register_model_info(
     "https://huggingface.co/cllm",
     "consistency-llm is a new generation of parallel decoder LLMs with fast generation speed.",
 )
+
+register_model_info(
+    [
+        "magnum-20b-v2.1",
+        "magnum-12b-v2-kto",
+    ],
+    "Magnum",
+    "https://huggingface.co/anthraciteorg",
+    "Magnum by Anthracite",
+)
