@@ -1,0 +1,15 @@
+{
+    "model-name": {
+        "text-arena": true,
+        "anony_only": false,
+        "model_name": "api-model-name",
+        "api_base": "openai-base.com/v1",
+        "recommended_config": {
+            "temperature": 1.0,
+            "top_p": 1.0,
+            "min_p": 0.05,
+            "max_new_tokens": 240
+        },
+        "api_type": "aphrodite"
+    }
+}
