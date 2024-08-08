@@ -19,9 +19,8 @@ def get_api_provider_stream_iter(
     conv,
     model_name,
     model_api_dict,
-    temperature,
-    top_p,
     max_new_tokens,
+    samplers,
     state,
 ):
     if model_api_dict["api_type"] == "openai":
@@ -32,19 +31,29 @@ def get_api_provider_stream_iter(
         stream_iter = openai_api_stream_iter(
             model_api_dict["model_name"],
             prompt,
-            temperature,
-            top_p,
+            samplers["temperature"],
+            samplers["top_p"],
             max_new_tokens,
             api_base=model_api_dict["api_base"],
             api_key=model_api_dict["api_key"],
+        )
+    elif model_api_dict["api_type"] == "aphrodite":
+        prompt = conv.to_openai_api_messages()
+        stream_iter = aphrodite_api_stream_iter(
+            model_api_dict["model_name"],
+            prompt,
+            max_new_tokens,
+            api_base=model_api_dict["api_base"],
+            api_key=model_api_dict.get("api_key", None),
+            **samplers
         )
     elif model_api_dict["api_type"] == "openai_no_stream":
         prompt = conv.to_openai_api_messages()
         stream_iter = openai_api_stream_iter(
             model_api_dict["model_name"],
             prompt,
-            temperature,
-            top_p,
+            samplers["temperature"],
+            samplers["top_p"],
             max_new_tokens,
             api_base=model_api_dict["api_base"],
             api_key=model_api_dict["api_key"],
@@ -64,7 +73,7 @@ def get_api_provider_stream_iter(
         else:
             prompt = conv.to_openai_api_messages()
         stream_iter = anthropic_api_stream_iter(
-            model_name, prompt, temperature, top_p, max_new_tokens
+            model_name, prompt, samplers["temperature"], samplers["top_p"], max_new_tokens
         )
     elif model_api_dict["api_type"] == "anthropic_message":
         if model_api_dict.get("vision-arena", False):
@@ -72,7 +81,7 @@ def get_api_provider_stream_iter(
         else:
             prompt = conv.to_openai_api_messages()
         stream_iter = anthropic_message_api_stream_iter(
-            model_api_dict["model_name"], prompt, temperature, top_p, max_new_tokens
+            model_api_dict["model_name"], prompt, samplers["temperature"], samplers["top_p"], max_new_tokens
         )
     elif model_api_dict["api_type"] == "anthropic_message_vertex":
         if model_api_dict.get("vision-arena", False):
@@ -82,8 +91,8 @@ def get_api_provider_stream_iter(
         stream_iter = anthropic_message_api_stream_iter(
             model_api_dict["model_name"],
             prompt,
-            temperature,
-            top_p,
+            samplers["temperature"],
+            samplers["top_p"],
             max_new_tokens,
             vertex_ai=True,
         )
@@ -92,8 +101,8 @@ def get_api_provider_stream_iter(
         stream_iter = gemini_api_stream_iter(
             model_api_dict["model_name"],
             prompt,
-            temperature,
-            top_p,
+            samplers["temperature"],
+            samplers["top_p"],
             max_new_tokens,
             api_key=model_api_dict["api_key"],
         )
@@ -102,8 +111,8 @@ def get_api_provider_stream_iter(
         stream_iter = gemini_api_stream_iter(
             model_api_dict["model_name"],
             prompt,
-            temperature,
-            top_p,
+            samplers["temperature"],
+            samplers["top_p"],
             max_new_tokens,
             api_key=model_api_dict["api_key"],
             use_stream=False,
@@ -113,8 +122,8 @@ def get_api_provider_stream_iter(
         stream_iter = bard_api_stream_iter(
             model_api_dict["model_name"],
             prompt,
-            temperature,
-            top_p,
+            samplers["temperature"],
+            samplers["top_p"],
             api_key=model_api_dict["api_key"],
         )
     elif model_api_dict["api_type"] == "mistral":
@@ -122,8 +131,8 @@ def get_api_provider_stream_iter(
         stream_iter = mistral_api_stream_iter(
             model_api_dict["model_name"],
             prompt,
-            temperature,
-            top_p,
+            samplers["temperature"],
+            samplers["top_p"],
             max_new_tokens,
             api_key=model_api_dict.get("api_key"),
         )
@@ -132,8 +141,8 @@ def get_api_provider_stream_iter(
         stream_iter = nvidia_api_stream_iter(
             model_name,
             prompt,
-            temperature,
-            top_p,
+            samplers["temperature"],
+            samplers["top_p"],
             max_new_tokens,
             model_api_dict["api_base"],
             model_api_dict["api_key"],
@@ -144,8 +153,8 @@ def get_api_provider_stream_iter(
             model_name,
             model_api_dict["model_name"],
             prompt,
-            temperature,
-            top_p,
+            samplers["temperature"],
+            samplers["top_p"],
             max_new_tokens,
             api_base=model_api_dict["api_base"],
             api_key=model_api_dict["api_key"],
@@ -153,7 +162,7 @@ def get_api_provider_stream_iter(
     elif model_api_dict["api_type"] == "vertex":
         prompt = conv.to_vertex_api_messages()
         stream_iter = vertex_api_stream_iter(
-            model_name, prompt, temperature, top_p, max_new_tokens
+            model_name, prompt, samplers["temperature"], samplers["top_p"], max_new_tokens
         )
     elif model_api_dict["api_type"] == "yandexgpt":
         # note: top_p parameter is unused by yandexgpt
@@ -174,7 +183,7 @@ def get_api_provider_stream_iter(
         stream_iter = yandexgpt_api_stream_iter(
             model_name=model_api_dict["model_name"],
             messages=messages,
-            temperature=temperature,
+            temperature=samplers["temperature"],
             max_tokens=max_new_tokens,
             api_base=model_api_dict["api_base"],
             api_key=model_api_dict.get("api_key"),
@@ -186,8 +195,8 @@ def get_api_provider_stream_iter(
             client_name=model_api_dict.get("client_name", "FastChat"),
             model_id=model_api_dict["model_name"],
             messages=messages,
-            temperature=temperature,
-            top_p=top_p,
+            temperature=samplers["temperature"],
+            top_p=samplers["top_p"],
             max_new_tokens=max_new_tokens,
             api_base=model_api_dict["api_base"],
             api_key=model_api_dict["api_key"],
@@ -197,8 +206,8 @@ def get_api_provider_stream_iter(
         stream_iter = reka_api_stream_iter(
             model_name=model_api_dict["model_name"],
             messages=messages,
-            temperature=temperature,
-            top_p=top_p,
+            temperature=samplers["temperature"],
+            top_p=samplers["top_p"],
             max_new_tokens=max_new_tokens,
             api_base=model_api_dict["api_base"],
             api_key=model_api_dict["api_key"],
@@ -208,6 +217,41 @@ def get_api_provider_stream_iter(
 
     return stream_iter
 
+def aphrodite_api_stream_iter(
+    model_name,
+    messages,
+    max_new_tokens,
+    api_base,
+    api_key=None,
+    **samplers
+):
+    from langchain_openai import ChatOpenAI
+
+    client = ChatOpenAI(
+        model=model_name,
+        base_url=api_base,
+        api_key="testkey" if api_key == None else api_key,
+        timeout=180,
+        extra_body=samplers
+    )
+
+    gen_params = {
+        "model": model_name,
+        "messages": messages,
+        "max_new_tokens": max_new_tokens,
+        **samplers
+    }
+    logger.info(f"==== request ====\n{gen_params}")
+
+    res = client.stream(messages)
+    text = ""
+    for chunk in res:
+        text += chunk.content or ""
+        data = {
+            "text": text,
+            "error_code": 0,
+        }
+        yield data
 
 def openai_api_stream_iter(
     model_name,

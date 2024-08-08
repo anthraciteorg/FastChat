@@ -402,9 +402,10 @@ def is_limit_reached(model_name, ip):
 
 def bot_response(
     state,
+    max_new_tokens,
     temperature,
     top_p,
-    max_new_tokens,
+    min_p,
     request: gr.Request,
     apply_rate_limit=True,
     use_recommended_config=False,
@@ -414,6 +415,7 @@ def bot_response(
     start_tstamp = time.time()
     temperature = float(temperature)
     top_p = float(top_p)
+    min_p = float(min_p)
     max_new_tokens = int(max_new_tokens)
 
     if state.skip_next:
@@ -488,8 +490,15 @@ def bot_response(
         if use_recommended_config:
             recommended_config = model_api_dict.get("recommended_config", None)
             if recommended_config is not None:
-                temperature = recommended_config.get("temperature", temperature)
-                top_p = recommended_config.get("top_p", top_p)
+                temperature = recommended_config.get(
+                    "temperature", temperature
+                )
+                top_p = recommended_config.get(
+                    "top_p", top_p
+                )
+                min_p = recommended_config.get(
+                    "min_p", min_p
+                )
                 max_new_tokens = recommended_config.get(
                     "max_new_tokens", max_new_tokens
                 )
@@ -498,9 +507,12 @@ def bot_response(
             conv,
             model_name,
             model_api_dict,
-            temperature,
-            top_p,
             max_new_tokens,
+            {
+                "temperature": temperature,
+                "top_p": top_p,
+                "min_p": min_p,
+            },
             state,
         )
 
@@ -576,9 +588,8 @@ def bot_response(
             "type": "chat",
             "model": model_name,
             "gen_params": {
-                "temperature": temperature,
-                "top_p": top_p,
                 "max_new_tokens": max_new_tokens,
+                **samplers
             },
             "start": round(start_tstamp, 4),
             "finish": round(finish_tstamp, 4),
@@ -883,6 +894,14 @@ def build_single_model_ui(models, add_promotion_links=False):
             interactive=True,
             label="Top P",
         )
+        min_p = gr.Slider(
+            minimum=0.0,
+            maximum=1.0,
+            value=0.0,
+            step=0.01,
+            interactive=True,
+            label="Min P",
+        )
         max_output_tokens = gr.Slider(
             minimum=16,
             maximum=2048,
@@ -914,7 +933,7 @@ def build_single_model_ui(models, add_promotion_links=False):
     )
     regenerate_btn.click(regenerate, state, [state, chatbot, textbox] + btn_list).then(
         bot_response,
-        [state, temperature, top_p, max_output_tokens],
+        [state, max_output_tokens, temperature, top_p, min_p],
         [state, chatbot] + btn_list,
     )
     clear_btn.click(clear_history, None, [state, chatbot, textbox] + btn_list)
@@ -927,7 +946,7 @@ def build_single_model_ui(models, add_promotion_links=False):
         [state, chatbot, textbox] + btn_list,
     ).then(
         bot_response,
-        [state, temperature, top_p, max_output_tokens],
+        [state, max_output_tokens, temperature, top_p, min_p],
         [state, chatbot] + btn_list,
     )
     send_btn.click(
@@ -936,7 +955,7 @@ def build_single_model_ui(models, add_promotion_links=False):
         [state, chatbot, textbox] + btn_list,
     ).then(
         bot_response,
-        [state, temperature, top_p, max_output_tokens],
+        [state, max_output_tokens, temperature, top_p, min_p],
         [state, chatbot] + btn_list,
     )
 

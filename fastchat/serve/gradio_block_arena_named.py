@@ -224,9 +224,10 @@ def add_text(
 def bot_response_multi(
     state0,
     state1,
+    max_new_tokens,
     temperature,
     top_p,
-    max_new_tokens,
+    min_p,
     request: gr.Request,
 ):
     logger.info(f"bot_response_multi (named). ip: {get_ip(request)}")
@@ -247,9 +248,10 @@ def bot_response_multi(
         gen.append(
             bot_response(
                 states[i],
+                max_new_tokens,
                 temperature,
                 top_p,
-                max_new_tokens,
+                min_p,
                 request,
             )
         )
@@ -397,6 +399,14 @@ def build_side_by_side_ui_named(models):
             interactive=True,
             label="Top P",
         )
+        min_p = gr.Slider(
+            minimum=0.0,
+            maximum=1.0,
+            value=0.0,
+            step=0.01,
+            interactive=True,
+            label="Min P",
+        )
         max_output_tokens = gr.Slider(
             minimum=16,
             maximum=2048,
@@ -441,7 +451,7 @@ def build_side_by_side_ui_named(models):
         regenerate, states, states + chatbots + [textbox] + btn_list
     ).then(
         bot_response_multi,
-        states + [temperature, top_p, max_output_tokens],
+        states + [max_output_tokens, temperature, top_p, min_p],
         states + chatbots + btn_list,
     ).then(
         flash_buttons, [], btn_list
@@ -481,7 +491,7 @@ function (a, b, c, d) {
         states + chatbots + [textbox] + btn_list,
     ).then(
         bot_response_multi,
-        states + [temperature, top_p, max_output_tokens],
+        states + [max_output_tokens, temperature, top_p, min_p],
         states + chatbots + btn_list,
     ).then(
         flash_buttons, [], btn_list
@@ -492,7 +502,7 @@ function (a, b, c, d) {
         states + chatbots + [textbox] + btn_list,
     ).then(
         bot_response_multi,
-        states + [temperature, top_p, max_output_tokens],
+        states + [max_output_tokens, temperature, top_p, min_p],
         states + chatbots + btn_list,
     ).then(
         flash_buttons, [], btn_list
