@@ -310,16 +310,11 @@ def flash_buttons():
 
 def build_side_by_side_ui_named(models):
     notice_markdown = f"""
-# ⚔️  LMSYS Chatbot Arena: Benchmarking LLMs in the Wild
-[Blog](https://lmsys.org/blog/2023-05-03-arena/) | [GitHub](https://github.com/lm-sys/FastChat) | [Paper](https://arxiv.org/abs/2403.04132) | [Dataset](https://github.com/lm-sys/FastChat/blob/main/docs/dataset_release.md) | [Twitter](https://twitter.com/lmsysorg) | [Discord](https://discord.gg/HSWAKCrnFx) | [Kaggle Competition](https://www.kaggle.com/competitions/lmsys-chatbot-arena)
+# Anthracite Magnum Arena 
+[Huggingface](https://huggingface.co/anthracite-org) | [GitHub](https://github.com/anthraciteorg) | [Website](https://anthra.site/)
 
-{SURVEY_LINK}
-
-## 📜 Rules
-- Ask any question to two chosen models (e.g., ChatGPT, Gemini, Claude, Llama) and vote for the better one!
+- Chat with two chosen in-development magnum models and vote for the better one
 - You can chat for multiple turns until you identify a winner.
-
-## 👇 Choose two models to compare
 """
 
     states = [gr.State() for _ in range(num_sides)]
@@ -339,12 +334,6 @@ def build_side_by_side_ui_named(models):
                         show_label=False,
                         container=False,
                     )
-        with gr.Row():
-            with gr.Accordion(
-                f"🔍 Expand to see the descriptions of {len(models)} models", open=False
-            ):
-                model_description_md = get_model_description_md(models)
-                gr.Markdown(model_description_md, elem_id="model_description_markdown")
 
         with gr.Row():
             for i in range(num_sides):
@@ -358,29 +347,29 @@ def build_side_by_side_ui_named(models):
                     )
 
     with gr.Row():
-        leftvote_btn = gr.Button(
-            value="👈  A is better", visible=False, interactive=False
-        )
         rightvote_btn = gr.Button(
-            value="👉  B is better", visible=False, interactive=False
+            value="B is better", visible=False, interactive=False
         )
-        tie_btn = gr.Button(value="🤝  Tie", visible=False, interactive=False)
+        tie_btn = gr.Button(value="Tie", visible=False, interactive=False)
         bothbad_btn = gr.Button(
-            value="👎  Both are bad", visible=False, interactive=False
+            value="Both are bad", visible=False, interactive=False
+        )
+        leftvote_btn = gr.Button(
+            value="A is better", visible=False, interactive=False
         )
 
     with gr.Row():
         textbox = gr.Textbox(
             show_label=False,
-            placeholder="👉 Enter your prompt and press ENTER",
+            placeholder="Enter your prompt and press ENTER",
             elem_id="input_box",
         )
         send_btn = gr.Button(value="Send", variant="primary", scale=0)
 
     with gr.Row() as button_row:
-        clear_btn = gr.Button(value="🗑️  Clear history", interactive=False)
-        regenerate_btn = gr.Button(value="🔄  Regenerate", interactive=False)
-        share_btn = gr.Button(value="📷  Share")
+        clear_btn = gr.Button(value="Clear history", interactive=False)
+        regenerate_btn = gr.Button(value="Regenerate", interactive=False)
+        share_btn = gr.Button(value="Screenshot Conversation")
 
     with gr.Accordion("Parameters", open=False) as parameter_row:
         temperature = gr.Slider(

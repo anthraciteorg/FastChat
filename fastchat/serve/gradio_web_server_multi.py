@@ -125,13 +125,14 @@ window.__gradio_mode__ = "app";
     text_size = gr.themes.sizes.text_lg
     with gr.Blocks(
         title="Chat with Open Large Language Models",
-        theme=gr.themes.Default(text_size=text_size),
+        theme=gr.themes.Soft(text_size=text_size, primary_hue=gr.themes.colors.red),
         css=block_css,
         head=head_js,
+        js=alert_js,
     ) as demo:
         with gr.Tabs() as inner_tabs:
             if args.vision_arena:
-                with gr.Tab("⚔️ Arena (battle)", id=0) as arena_tab:
+                with gr.Tab("Arena (battle)", id=0) as arena_tab:
                     arena_tab.select(None, None, None, js=load_js)
                     side_by_side_anony_list = build_side_by_side_vision_ui_anony(
                         all_models,
@@ -139,16 +140,16 @@ window.__gradio_mode__ = "app";
                         random_questions=args.random_questions,
                     )
             else:
-                with gr.Tab("⚔️ Arena (battle)", id=0) as arena_tab:
+                with gr.Tab("Arena (battle)", id=0) as arena_tab:
                     arena_tab.select(None, None, None, js=load_js)
                     side_by_side_anony_list = build_side_by_side_ui_anony(models)
 
-            with gr.Tab("⚔️ Arena (side-by-side)", id=2) as side_by_side_tab:
-                side_by_side_tab.select(None, None, None, js=alert_js)
+            with gr.Tab("Arena (side-by-side)", id=2) as side_by_side_tab:
+                side_by_side_tab.select(None, None, None)
                 side_by_side_named_list = build_side_by_side_ui_named(models)
 
-            with gr.Tab("💬 Direct Chat", id=3) as direct_tab:
-                direct_tab.select(None, None, None, js=alert_js)
+            with gr.Tab("Direct Chat", id=3) as direct_tab:
+                direct_tab.select(None, None, None)
                 single_model_list = build_single_model_ui(
                     models, add_promotion_links=True
                 )
@@ -161,12 +162,12 @@ window.__gradio_mode__ = "app";
             )
 
             if elo_results_file:
-                with gr.Tab("🏆 Leaderboard", id=4):
+                with gr.Tab("Leaderboard", id=4):
                     build_leaderboard_tab(
                         elo_results_file, leaderboard_table_file, show_plot=True
                     )
 
-            with gr.Tab("ℹ️ About Us", id=5):
+            with gr.Tab("About Us", id=5):
                 about = build_about()
 
         url_params = gr.JSON(visible=False)

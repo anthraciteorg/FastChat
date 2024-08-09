@@ -78,7 +78,7 @@ def vote_last_response(states, vote_type, model_selectors, request: gr.Request):
     get_remote_logger().log(data)
 
     gr.Info(
-        "🎉 Thanks for voting! Your vote shapes the leaderboard, please vote RESPONSIBLY."
+        "Thanks for voting! Your vote shapes the leaderboard, please vote RESPONSIBLY."
     )
     if ":" not in model_selectors[0]:
         for i in range(5):
@@ -416,23 +416,11 @@ def bot_response_multi(
 
 def build_side_by_side_ui_anony(models):
     notice_markdown = f"""
-# ⚔️  LMSYS Chatbot Arena: Benchmarking LLMs in the Wild
-[Blog](https://lmsys.org/blog/2023-05-03-arena/) | [GitHub](https://github.com/lm-sys/FastChat) | [Paper](https://arxiv.org/abs/2403.04132) | [Dataset](https://github.com/lm-sys/FastChat/blob/main/docs/dataset_release.md) | [Twitter](https://twitter.com/lmsysorg) | [Discord](https://discord.gg/HSWAKCrnFx) | [Kaggle Competition](https://www.kaggle.com/competitions/lmsys-chatbot-arena)
+# Anthracite Magnum Arena 
+[Huggingface](https://huggingface.co/anthracite-org) | [GitHub](https://github.com/anthraciteorg) | [Website](https://anthra.site/)
 
-{SURVEY_LINK}
-
-## 📣 News
-- Chatbot Arena now supports images in beta. Check it out [here](https://chat.lmsys.org/?vision).
-
-## 📜 Rules
-- Ask any question to two anonymous models (e.g., ChatGPT, Gemini, Claude, Llama) and vote for the better one!
+- Chat with two random in-development magnum models and vote for the better one
 - You can chat for multiple turns until you identify a winner.
-- Votes won't be counted if model identities are revealed during the conversation.
-
-## 🏆 Chatbot Arena [Leaderboard](https://leaderboard.lmsys.org)
-- We've collected **1,000,000+** human votes to compute an LLM leaderboard for 100+ models. Find out who is the 🥇LLM Champion [here](https://leaderboard.lmsys.org)!
-
-## 👇 Chat now!
 """
 
     states = [gr.State() for _ in range(num_sides)]
@@ -442,11 +430,6 @@ def build_side_by_side_ui_anony(models):
     gr.Markdown(notice_markdown, elem_id="notice_markdown")
 
     with gr.Group(elem_id="share-region-anony"):
-        with gr.Accordion(
-            f"🔍 Expand to see the descriptions of {len(models)} models", open=False
-        ):
-            model_description_md = get_model_description_md(models)
-            gr.Markdown(model_description_md, elem_id="model_description_markdown")
         with gr.Row():
             for i in range(num_sides):
                 label = "Model A" if i == 0 else "Model B"
@@ -469,28 +452,28 @@ def build_side_by_side_ui_anony(models):
 
     with gr.Row():
         leftvote_btn = gr.Button(
-            value="👈  A is better", visible=False, interactive=False
+            value=" A is better", visible=False, interactive=False
+        )
+        tie_btn = gr.Button(value="Tie", visible=False, interactive=False)
+        bothbad_btn = gr.Button(
+            value="Both are bad", visible=False, interactive=False
         )
         rightvote_btn = gr.Button(
-            value="👉  B is better", visible=False, interactive=False
-        )
-        tie_btn = gr.Button(value="🤝  Tie", visible=False, interactive=False)
-        bothbad_btn = gr.Button(
-            value="👎  Both are bad", visible=False, interactive=False
+            value="B is better", visible=False, interactive=False
         )
 
     with gr.Row():
         textbox = gr.Textbox(
             show_label=False,
-            placeholder="👉 Enter your prompt and press ENTER",
+            placeholder="Enter your prompt and press ENTER",
             elem_id="input_box",
         )
         send_btn = gr.Button(value="Send", variant="primary", scale=0)
 
     with gr.Row() as button_row:
-        clear_btn = gr.Button(value="🎲 New Round", interactive=False)
-        regenerate_btn = gr.Button(value="🔄  Regenerate", interactive=False)
-        share_btn = gr.Button(value="📷  Share")
+        clear_btn = gr.Button(value="New Round", interactive=False)
+        regenerate_btn = gr.Button(value="Regenerate", interactive=False)
+        share_btn = gr.Button(value="Screenshot Conversation")
 
     with gr.Accordion("Parameters", open=False, visible=False) as parameter_row:
         temperature = gr.Slider(
@@ -531,9 +514,9 @@ def build_side_by_side_ui_anony(models):
     # Register listeners
     btn_list = [
         leftvote_btn,
-        rightvote_btn,
         tie_btn,
         bothbad_btn,
+        rightvote_btn,
         regenerate_btn,
         clear_btn,
     ]
