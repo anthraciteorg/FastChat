@@ -39,6 +39,7 @@ from fastchat.serve.gradio_web_server import (
     load_demo_single,
     get_ip,
 )
+from fastchat.serve.gradio_block_admin import build_admin_tab, load_admin_tab
 from fastchat.serve.monitor.monitor import build_leaderboard_tab
 from fastchat.utils import (
     build_logger,
@@ -70,6 +71,8 @@ def load_demo(url_params, request: gr.Request):
         inner_selected = 4
     elif "about" in url_params:
         inner_selected = 5
+    elif "admin" in url_params:
+        inner_selected = 6
 
     if args.model_list_mode == "reload":
         models, all_models = get_model_list(
@@ -154,12 +157,7 @@ window.__gradio_mode__ = "app";
                     models, add_promotion_links=True
                 )
 
-            demo_tabs = (
-                [inner_tabs]
-                + single_model_list
-                + side_by_side_anony_list
-                + side_by_side_named_list
-            )
+
 
             if elo_results_file:
                 with gr.Tab("Leaderboard", id=4):
@@ -169,6 +167,17 @@ window.__gradio_mode__ = "app";
 
             with gr.Tab("About Us", id=5):
                 about = build_about()
+
+            with gr.Tab("Admin Page", id=6):
+                admin_tab_list = build_admin_tab()
+
+            demo_tabs = (
+                [inner_tabs]
+                + single_model_list
+                + side_by_side_anony_list
+                + side_by_side_named_list
+                + admin_tab_list
+            )
 
         url_params = gr.JSON(visible=False)
 
