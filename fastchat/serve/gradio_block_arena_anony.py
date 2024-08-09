@@ -31,6 +31,7 @@ from fastchat.serve.gradio_web_server import (
     disable_text,
     acknowledgment_md,
     get_ip,
+    db,
     get_model_description_md,
 )
 from fastchat.serve.remote_logger import get_remote_logger
@@ -76,6 +77,13 @@ def vote_last_response(states, vote_type, model_selectors, request: gr.Request):
         }
         fout.write(json.dumps(data) + "\n")
     get_remote_logger().log(data)
+    db["responses"].insert_one({
+        "tstamp": round(time.time(), 4),
+        "type": vote_type,
+        "models": [x for x in model_selectors],
+        "states": [x.dict() for x in states],
+        "ip": get_ip(request),
+    })
 
     gr.Info(
         "Thanks for voting! Your vote shapes the leaderboard, please vote RESPONSIBLY."

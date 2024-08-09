@@ -127,7 +127,7 @@ window.__gradio_mode__ = "app";
         """
     text_size = gr.themes.sizes.text_lg
     with gr.Blocks(
-        title="Chat with Open Large Language Models",
+        title="Anthracite's Magnum Arena",
         theme=gr.themes.Soft(text_size=text_size, primary_hue=gr.themes.colors.red),
         css=block_css,
         head=head_js,

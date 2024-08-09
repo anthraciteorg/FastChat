@@ -94,7 +94,12 @@ We thank [LMSYS](https://lmsys.org/) for their development of FastChat/The Arena
 #  - "anony_only" indicates whether to display this model in anonymous mode only.
 
 api_endpoint_info = {}
-
+def get_database():
+   from pymongo import MongoClient
+   CONNECTION_STRING = os.environ["MONGO_URL"]
+   client = MongoClient(CONNECTION_STRING)
+   return client["anthracite-arena"]
+db = get_database()
 
 class State:
     def __init__(self, model_name, is_vision=False):
@@ -186,6 +191,9 @@ def get_model_list(controller_url, register_api_endpoint_file, vision_arena):
             if not vision_arena and mdl_text:
                 models.append(mdl)
 
+    for model in db["model_endpoints"].find({}):
+        models.append(model["key"])
+
     # Remove anonymous models
     models = list(set(models))
     visible_models = models.copy()
@@ -245,6 +253,13 @@ def vote_last_response(state, vote_type, model_selector, request: gr.Request):
             "ip": get_ip(request),
         }
         fout.write(json.dumps(data) + "\n")
+    db["responses"].insert_one({
+        "tstamp": round(time.time(), 4),
+        "type": vote_type,
+        "models": model_selector,
+        "states": state.dict(),
+        "ip": get_ip(request),
+    })
     get_remote_logger().log(data)
 
 
@@ -394,7 +409,7 @@ def bot_response(
     top_p,
     min_p,
     request: gr.Request,
-    apply_rate_limit=True,
+    apply_rate_limit=False,
     use_recommended_config=False,
 ):
     ip = get_ip(request)
@@ -421,9 +436,7 @@ def bot_response(
             return
 
     conv, model_name = state.conv, state.model_name
-    model_api_dict = (
-        api_endpoint_info[model_name] if model_name in api_endpoint_info else None
-    )
+    model_api_dict = db["model_endpoints"].find_one({ "key": model_name })
     images = conv.get_images()
 
     if model_api_dict is None:

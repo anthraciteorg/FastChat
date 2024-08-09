@@ -1,5 +1,5 @@
 import gradio as gr
-from fastchat.serve.gradio_web_server import api_endpoint_info
+from fastchat.serve.gradio_web_server import api_endpoint_info, db
 import os
     
 def load_admin_tab():
@@ -8,9 +8,8 @@ def load_admin_tab():
 def build_admin_tab():
     endpoints_state = gr.State([])
 
-    with gr.Group(visible=True) as login_group:
-        password_input = gr.Textbox(type="password", label="Enter Password")
-        submit_button = gr.Button("Access Protected Content")
+    password_input = gr.Textbox(type="password", label="Enter Password")
+    submit_button = gr.Button("Access Protected Content")
 
     
     @gr.render(inputs=[endpoints_state])
@@ -24,9 +23,8 @@ def build_admin_tab():
 
                 @gr.on(delete.click, inputs=[key], outputs=[endpoints_state])
                 def delete_endpoint(key):
-                    del api_endpoint_info[key]
-                    endpoints = [{"key": key, **value} for key, value in api_endpoint_info.items()] 
-                    return endpoints
+                    db["model_endpoints"].find_one_and_delete({ "key": key })
+                    return db["model_endpoints"].find({})
         
     with gr.Group(visible=False) as create_group:
         with gr.Row():
@@ -40,7 +38,7 @@ def build_admin_tab():
         @gr.on(create.click, inputs=[model_key, model_name, base_url, api_key, password_input], outputs=[endpoints_state])
         def create_endpoint(model_key, name, url, api_key, password):
             if password == os.environ["ADMIN_TOKEN"]:
-                api_endpoint_info[model_key] = {
+                model = {
                     "text-arena": True,
                     "anony_only": False,
                     "model_name": name,
@@ -54,16 +52,20 @@ def build_admin_tab():
                     "api_type": "aphrodite"
                 }
                 if api_key != "":
-                    api_endpoint_info[model_key] = api_key
-                endpoints = [{"key": key, **value} for key, value in api_endpoint_info.items()] 
-                return endpoints
+                    model["api_key"] = api_key
+                db["model_endpoints"].insert_one(
+                    {
+                        "key": model_key,
+                        **model
+                    }
+                )
+                return list(db["model_endpoints"].find({}))
             return []
 
-    @gr.on(submit_button.click, inputs=[password_input, endpoints_state], outputs=[login_group, create_group, endpoints_state])
+    @gr.on(submit_button.click, inputs=[password_input, endpoints_state], outputs=[password_input, submit_button, create_group, endpoints_state])
     def hide_group(password, endpoints):
         if password == os.environ["ADMIN_TOKEN"]:
-            endpoints = [{"key": key, **value} for key, value in api_endpoint_info.items()]
-            return [gr.update(visible=False), gr.update(visible=True), endpoints]
-        return [gr.update(visible=True),gr.update(visible=False), []]
+            return [gr.update(visible=False), gr.update(visible=False), gr.update(visible=True), list(db["model_endpoints"].find({}))]
+        return [gr.update(visible=True), gr.update(visible=True),gr.update(visible=False), []]
 
     return []
