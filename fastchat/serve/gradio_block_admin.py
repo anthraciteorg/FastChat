@@ -17,7 +17,9 @@ def build_admin_tab():
         for i, endpoint in enumerate(endpoints):
             with gr.Accordion(label=endpoint["key"]):
                 model_name = gr.Textbox(value=endpoint["model_name"], label="API Model Name", interactive=False)
-                base_url = gr.Textbox(value=endpoint["api_base"], label="API Base Url", interactive=False)
+                with gr.Row():
+                    base_url = gr.Textbox(value=endpoint["api_base"], label="API Base Url", interactive=False)
+                    endpoint_type = gr.Textbox(value=endpoint["api_type"], label="API Type", interactive=False, scale=0)
                 delete = gr.Button("Delete")
                 key = gr.State(endpoint["key"])
 
@@ -33,10 +35,11 @@ def build_admin_tab():
         with gr.Row():
             base_url = gr.Textbox(label="API Base Url", interactive=True)
             api_key = gr.Textbox(label="API Key", interactive=True)
+            endpoint_type = gr.Dropdown(value=1, choices=["openai", "aphrodite"], label="Endpoint Type", interactive=True, scale=0)
         create = gr.Button("Create Endpoint")
 
-        @gr.on(create.click, inputs=[model_key, model_name, base_url, api_key, password_input], outputs=[endpoints_state])
-        def create_endpoint(model_key, name, url, api_key, password):
+        @gr.on(create.click, inputs=[model_key, model_name, base_url, api_key, password_input, endpoint_type], outputs=[endpoints_state])
+        def create_endpoint(model_key, name, url, api_key, password, endpoint_type):
             if password == os.environ["ADMIN_TOKEN"]:
                 model = {
                     "text-arena": True,
@@ -49,7 +52,7 @@ def build_admin_tab():
                         "min_p": 0.0,
                         "max_new_tokens": 200
                     },
-                    "api_type": "aphrodite"
+                    "api_type": endpoint_type 
                 }
                 if api_key != "":
                     model["api_key"] = api_key
