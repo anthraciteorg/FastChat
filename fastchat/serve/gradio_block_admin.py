@@ -16,12 +16,25 @@ def build_admin_tab():
     def endpoint_list(endpoints):
         for i, endpoint in enumerate(endpoints):
             with gr.Accordion(label=endpoint["key"]):
-                model_name = gr.Textbox(value=endpoint["model_name"], label="API Model Name", interactive=False)
+                model_name = gr.Textbox(value=endpoint["model_name"], label="API Model Name", interactive=True)
                 with gr.Row():
-                    base_url = gr.Textbox(value=endpoint["api_base"], label="API Base Url", interactive=False)
-                    endpoint_type = gr.Textbox(value=endpoint["api_type"], label="API Type", interactive=False, scale=0)
-                delete = gr.Button("Delete")
+                    base_url = gr.Textbox(value=endpoint["api_base"], label="API Base Url", interactive=True)
+                    api_key = gr.Textbox(value=endpoint["api_key"], label="API Key", type="password", interactive=True)
+                    endpoint_type = gr.Dropdown(value=endpoint["api_type"], choices=["openai", "aphrodite"], label="API Type", interactive=True, scale=0)
+                with gr.Row():
+                    delete = gr.Button("Delete")
+                    update = gr.Button("Update")
                 key = gr.State(endpoint["key"])
+
+                @gr.on(update.click, inputs=[key, model_name, base_url, api_key, endpoint_type], outputs=[endpoints_state])
+                def update_endpoint(key, model_name, base_url, api_key, endpoint_type):
+                    db["model_endpoints"].update_one({ "key": key }, {"$set": {
+                        "model_name": model_name,
+                        "api_base": base_url,
+                        "api_key": api_key,
+                        "endpoint_type": endpoint_type,
+                    }})
+                    return db["model_endpoints"].find({})
 
                 @gr.on(delete.click, inputs=[key], outputs=[endpoints_state])
                 def delete_endpoint(key):
