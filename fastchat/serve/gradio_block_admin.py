@@ -59,12 +59,6 @@ def build_admin_tab():
                     "anony_only": False,
                     "model_name": name,
                     "api_base": url,
-                    "recommended_config": {
-                        "temperature": 1.0,
-                        "top_p": 1.0,
-                        "min_p": 0.0,
-                        "max_new_tokens": 200
-                    },
                     "api_type": endpoint_type 
                 }
                 if api_key != "":
