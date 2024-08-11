@@ -357,15 +357,15 @@ def build_side_by_side_ui_named(models):
                     )
 
     with gr.Row():
-        rightvote_btn = gr.Button(
-            value="B is better", visible=False, interactive=False
+        leftvote_btn = gr.Button(
+            value="A is better", visible=False, interactive=False
         )
         tie_btn = gr.Button(value="Tie", visible=False, interactive=False)
         bothbad_btn = gr.Button(
             value="Both are bad", visible=False, interactive=False
         )
-        leftvote_btn = gr.Button(
-            value="A is better", visible=False, interactive=False
+        rightvote_btn = gr.Button(
+            value="B is better", visible=False, interactive=False
         )
 
     with gr.Row():
