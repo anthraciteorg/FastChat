@@ -918,7 +918,7 @@ def build_single_model_ui(models, add_promotion_links=False):
         [state, chatbot, textbox] + btn_list,
     ).then(
         bot_response,
-        [state, max_output_tokens, temperature, top_p, min_p],
+        [state, max_output_tokens, temperature, top_p, min_p, system_prompt],
         [state, chatbot] + btn_list,
     )
 
