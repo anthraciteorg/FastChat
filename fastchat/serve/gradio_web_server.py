@@ -408,6 +408,7 @@ def bot_response(
     temperature,
     top_p,
     min_p,
+    system_prompt,
     request: gr.Request,
     apply_rate_limit=False,
     use_recommended_config=False,
@@ -486,6 +487,7 @@ def bot_response(
         custom_system_prompt = model_api_dict.get("custom_system_prompt", False)
         if not custom_system_prompt:
             conv.set_system_message("")
+        conv.set_system_message(system_prompt)
 
         if use_recommended_config:
             recommended_config = model_api_dict.get("recommended_config", None)
@@ -865,11 +867,16 @@ def build_single_model_ui(models, add_promotion_links=False):
         )
         max_output_tokens = gr.Slider(
             minimum=16,
-            maximum=2048,
-            value=1024,
+            maximum=976,
+            value=240,
             step=64,
             interactive=True,
             label="Max output tokens",
+        )
+        system_prompt = gr.Textbox(
+            value="",
+            interactive=True,
+            label="System Prompt",
         )
 
     if add_promotion_links:
@@ -889,7 +896,7 @@ def build_single_model_ui(models, add_promotion_links=False):
     )
     regenerate_btn.click(regenerate, state, [state, chatbot, textbox] + btn_list).then(
         bot_response,
-        [state, max_output_tokens, temperature, top_p, min_p],
+        [state, max_output_tokens, temperature, top_p, min_p, system_prompt],
         [state, chatbot] + btn_list,
     )
     clear_btn.click(clear_history, None, [state, chatbot, textbox] + btn_list)
@@ -902,7 +909,7 @@ def build_single_model_ui(models, add_promotion_links=False):
         [state, chatbot, textbox] + btn_list,
     ).then(
         bot_response,
-        [state, max_output_tokens, temperature, top_p, min_p],
+        [state, max_output_tokens, temperature, top_p, min_p, system_prompt],
         [state, chatbot] + btn_list,
     )
     send_btn.click(

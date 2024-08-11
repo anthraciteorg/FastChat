@@ -349,6 +349,7 @@ def bot_response_multi(
     temperature,
     top_p,
     min_p,
+    system_prompt,
     request: gr.Request,
 ):
     logger.info(f"bot_response_multi (anony). ip: {get_ip(request)}")
@@ -373,9 +374,9 @@ def bot_response_multi(
                 temperature,
                 top_p,
                 min_p,
+                system_prompt,
                 request,
                 apply_rate_limit=False,
-                use_recommended_config=True,
             )
         )
 
@@ -483,7 +484,7 @@ def build_side_by_side_ui_anony(models):
         regenerate_btn = gr.Button(value="Regenerate", interactive=False)
         share_btn = gr.Button(value="Screenshot Conversation")
 
-    with gr.Accordion("Parameters", open=False, visible=False) as parameter_row:
+    with gr.Accordion("Parameters", open=False, visible=True) as parameter_row:
         temperature = gr.Slider(
             minimum=0.0,
             maximum=1.0,
@@ -503,18 +504,23 @@ def build_side_by_side_ui_anony(models):
         min_p = gr.Slider(
             minimum=0.0,
             maximum=1.0,
-            value=0.0,
+            value=0.05,
             step=0.01,
             interactive=True,
             label="Min P",
         )
         max_output_tokens = gr.Slider(
             minimum=16,
-            maximum=2048,
-            value=1600,
+            maximum=976,
+            value=240,
             step=64,
             interactive=True,
             label="Max output tokens",
+        )
+        system_prompt = gr.Textbox(
+            value="",
+            interactive=True,
+            label="System Prompt",
         )
 
     gr.Markdown(acknowledgment_md, elem_id="ack_markdown")
@@ -556,7 +562,7 @@ def build_side_by_side_ui_anony(models):
         regenerate, states, states + chatbots + [textbox] + btn_list
     ).then(
         bot_response_multi,
-        states + [max_output_tokens, temperature, top_p, min_p],
+        states + [max_output_tokens, temperature, top_p, min_p, system_prompt],
         states + chatbots + btn_list,
     ).then(
         flash_buttons, [], btn_list
@@ -601,7 +607,7 @@ function (a, b, c, d) {
         states + chatbots + [textbox] + btn_list + [slow_warning],
     ).then(
         bot_response_multi,
-        states + [max_output_tokens, temperature, top_p, min_p],
+        states + [max_output_tokens, temperature, top_p, min_p, system_prompt],
         states + chatbots + btn_list,
     ).then(
         flash_buttons,
@@ -615,7 +621,7 @@ function (a, b, c, d) {
         states + chatbots + [textbox] + btn_list,
     ).then(
         bot_response_multi,
-        states + [max_output_tokens, temperature, top_p, min_p],
+        states + [max_output_tokens, temperature, top_p, min_p, system_prompt],
         states + chatbots + btn_list,
     ).then(
         flash_buttons, [], btn_list
