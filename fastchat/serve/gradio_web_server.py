@@ -28,6 +28,7 @@ from fastchat.constants import (
     SESSION_EXPIRATION_TIME,
     SURVEY_LINK,
 )
+from fastchat.conversation import get_conv_template
 from fastchat.model.model_adapter import (
     get_conversation_template,
 )
@@ -103,7 +104,7 @@ db = get_database()
 
 class State:
     def __init__(self, model_name, is_vision=False):
-        self.conv = get_conversation_template(model_name)
+        self.conv = get_conv_template("api_based_default")
         self.conv_id = uuid.uuid4().hex
         self.skip_next = False
         self.model_name = model_name
