@@ -232,6 +232,7 @@ def aphrodite_api_stream_iter(
         base_url=api_base,
         api_key="testkey" if api_key == None else api_key,
         timeout=180,
+        max_tokens=max_new_tokens,
         extra_body=samplers
     )
 
