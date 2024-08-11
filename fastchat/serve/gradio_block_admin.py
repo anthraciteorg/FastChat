@@ -32,7 +32,7 @@ def build_admin_tab():
                         "model_name": model_name,
                         "api_base": base_url,
                         "api_key": api_key,
-                        "endpoint_type": endpoint_type,
+                        "api_type": endpoint_type,
                     }})
                     return db["model_endpoints"].find({})
 
