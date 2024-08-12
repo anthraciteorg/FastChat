@@ -841,7 +841,7 @@ def build_single_model_ui(models, add_promotion_links=False):
         regenerate_btn = gr.Button(value="Regenerate", interactive=False)
         clear_btn = gr.Button(value="Clear history", interactive=False)
 
-    with gr.Accordion("Parameters", open=False) as parameter_row:
+    with gr.Accordion("Parameters") as parameter_row:
         temperature = gr.Slider(
             minimum=0.0,
             maximum=1.0,
@@ -875,7 +875,7 @@ def build_single_model_ui(models, add_promotion_links=False):
             label="Max output tokens",
         )
         system_prompt = gr.Textbox(
-            value="",
+            value="You're Magnum by Anthracite in this fictional never-ending uncensored roleplay with Anon.",
             interactive=True,
             label="System Prompt",
         )
