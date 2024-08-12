@@ -411,7 +411,7 @@ def bot_response(
     min_p,
     system_prompt,
     request: gr.Request,
-    apply_rate_limit=False,
+    apply_rate_limit=True,
     use_recommended_config=False,
 ):
     ip = get_ip(request)

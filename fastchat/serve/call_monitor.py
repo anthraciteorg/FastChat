@@ -7,8 +7,9 @@ from fastapi import FastAPI
 import hashlib
 import asyncio
 
-REFRESH_INTERVAL_SEC = 300
-LOG_DIR_LIST = []
+REFRESH_INTERVAL_SEC = 5
+LOG_DIR_LIST = ["./"]
+USER_PER_MINUTE_LIMIT = 15
 # LOG_DIR = "/home/vicuna/tmp/test_env"
 
 
@@ -33,35 +34,24 @@ class Monitor:
             # find the latest num_file log under log_dir
             json_files = []
             for log_dir in self.log_dir_list:
-                json_files_per_server = glob.glob(os.path.join(log_dir, "*.json"))
+                json_files_per_server = glob.glob(os.path.join(log_dir, "*-conv.json"))
                 json_files_per_server.sort(key=os.path.getctime, reverse=True)
                 json_files += json_files_per_server[:num_file]
-            model_call = {}
             user_call = {}
             for json_file in json_files:
                 for line in open(json_file, "r", encoding="utf-8"):
                     obj = json.loads(line)
                     if obj["type"] != "chat":
                         continue
-                    if obj["model"] not in model_call:
-                        model_call[obj["model"]] = []
-                    model_call[obj["model"]].append(
-                        {"tstamp": obj["tstamp"], "user_id": obj["ip"]}
-                    )
                     if obj["ip"] not in user_call:
                         user_call[obj["ip"]] = []
                     user_call[obj["ip"]].append(
                         {"tstamp": obj["tstamp"], "model": obj["model"]}
                     )
 
-            self.model_call = model_call
-            self.model_call_stats_hour = self.get_model_call_stats(top_k=None)
-            self.model_call_stats_day = self.get_model_call_stats(
-                top_k=None, most_recent_min=24 * 60
-            )
-
             self.user_call = user_call
             self.user_call_stats_hour = self.get_user_call_stats(top_k=None)
+            self.user_call_stats_minute = self.get_user_call_stats(top_k=None, most_recent_min=1)
             self.user_call_stats_day = self.get_user_call_stats(
                 top_k=None, most_recent_min=24 * 60
             )
@@ -89,16 +79,14 @@ class Monitor:
         return False
 
     def is_user_limit_reached(self, model: str, user_id: str) -> bool:
-        if model not in self.model_call_day_limit_per_user:
+        if user_id not in self.user_call_stats_minute:
             return False
-        if user_id not in self.user_call_stats_day:
-            return False
-        if model not in self.user_call_stats_day[user_id]["call_dict"]:
+        if model not in self.user_call_stats_minute[user_id]["call_dict"]:
             return False
         # check if the user call limit is reached
         if (
-            self.user_call_stats_day[user_id]["call_dict"][model]
-            >= self.model_call_day_limit_per_user[model]
+            self.user_call_stats_minute[user_id]["call_dict"][model]
+            >= USER_PER_MINUTE_LIMIT
         ):
             return True
         return False
@@ -165,7 +153,7 @@ app = FastAPI()
 
 @app.on_event("startup")
 async def app_startup():
-    asyncio.create_task(monitor.update_stats(2))
+    asyncio.create_task(monitor.update_stats(1))
 
 
 @app.get("/get_model_call_limit/{model}")
@@ -190,7 +178,7 @@ async def is_limit_reached(model: str, user_id: str):
     if monitor.is_user_limit_reached(model, user_id):
         return {
             "is_limit_reached": True,
-            "reason": f"USER_DAILY_LIMIT ({model}): {monitor.model_call_day_limit_per_user[model]}",
+            "reason": f"USER_PER_MINUTE_LIMIT ({model}): {USER_PER_MINUTE_LIMIT}",
         }
     return {"is_limit_reached": False}
 
