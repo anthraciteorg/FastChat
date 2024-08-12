@@ -563,9 +563,10 @@ def bot_response(
         )
         return
     except Exception as e:
+        logger.error(e)
         conv.update_last_message(
             f"{SERVER_ERROR_MSG}\n\n"
-            f"(error_code: {ErrorCode.GRADIO_STREAM_UNKNOWN_ERROR}, {e})"
+            f"(error_code: {ErrorCode.GRADIO_STREAM_UNKNOWN_ERROR})"
         )
         yield (state, state.to_gradio_chatbot()) + (
             disable_btn,

@@ -19,7 +19,7 @@ def build_admin_tab():
                 model_name = gr.Textbox(value=endpoint["model_name"], label="API Model Name", interactive=True)
                 with gr.Row():
                     base_url = gr.Textbox(value=endpoint["api_base"], label="API Base Url", interactive=True)
-                    api_key = gr.Textbox(value=endpoint["api_key"], label="API Key", type="password", interactive=True)
+                    api_key = gr.Textbox(value=endpoint.get("api_key", ""), label="API Key", type="password", interactive=True)
                     endpoint_type = gr.Dropdown(value=endpoint["api_type"], choices=["openai", "aphrodite"], label="API Type", interactive=True, scale=0)
                 with gr.Row():
                     delete = gr.Button("Delete")
