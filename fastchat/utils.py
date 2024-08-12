@@ -22,6 +22,22 @@ from fastchat.constants import LOGDIR
 handler = None
 visited_loggers = set()
 
+class WebhookHandler(logging.Handler):
+    def __init__(self):
+        logging.Handler.__init__(self)
+
+    def emit(self, log_record):
+        if log_record.levelno > logging.WARNING:
+            data = {
+                "username": f"Magnum Arena {log_record.levelname}",
+                "content": self.format(log_record),
+            }
+
+            requests.post(os.environ["WEBHOOK_LOG_URL"],
+                        json=data,
+                        headers={'Content-Type': 'application/json'})
+        
+
 
 def build_logger(logger_name, logger_filename):
     global handler
@@ -43,6 +59,9 @@ def build_logger(logger_name, logger_filename):
                     "we recommend you use Python >= 3.9 for UTF-8 encoding."
                 )
             logging.basicConfig(level=logging.INFO)
+        logging.captureWarnings(True)
+        if "WEBHOOK_LOG_URL" in os.environ:
+            logging.getLogger().handlers.append(WebhookHandler())
     logging.getLogger().handlers[0].setFormatter(formatter)
 
     # Redirect stdout and stderr to loggers
