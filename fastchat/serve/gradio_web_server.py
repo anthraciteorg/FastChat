@@ -65,7 +65,7 @@ controller_url = None
 enable_moderation = False
 use_remote_storage = False
 
-default_system_prompt = "You are an assistant designed to help with a variety of creative writing tasks and engage in conversation with the user"
+default_system_prompt = "You are engaging in a chat with an anonymous user."
 
 acknowledgment_md = """
 ### Terms of Service
