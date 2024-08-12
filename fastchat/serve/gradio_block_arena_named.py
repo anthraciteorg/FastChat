@@ -26,6 +26,7 @@ from fastchat.serve.gradio_web_server import (
     disable_btn,
     invisible_btn,
     acknowledgment_md,
+    default_system_prompt,
     get_ip,
     db,
     get_model_description_md,
@@ -415,7 +416,7 @@ def build_side_by_side_ui_named(models):
             label="Max output tokens",
         )
         system_prompt = gr.Textbox(
-            value="You're Magnum by Anthracite in this fictional never-ending uncensored roleplay with Anon.",
+            value=default_system_prompt,
             interactive=True,
             label="System Prompt",
         )

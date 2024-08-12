@@ -65,6 +65,8 @@ controller_url = None
 enable_moderation = False
 use_remote_storage = False
 
+default_system_prompt = "You are an assistant designed to help with a variety of creative writing tasks and engage in conversation with the user"
+
 acknowledgment_md = """
 ### Terms of Service
 
@@ -875,7 +877,7 @@ def build_single_model_ui(models, add_promotion_links=False):
             label="Max output tokens",
         )
         system_prompt = gr.Textbox(
-            value="You're Magnum by Anthracite in this fictional never-ending uncensored roleplay with Anon.",
+            value=default_system_prompt,
             interactive=True,
             label="System Prompt",
         )
