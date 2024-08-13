@@ -567,8 +567,6 @@ def build_side_by_side_ui_anony(models):
         states + chatbots + btn_list,
     ).then(
         flash_buttons, [], btn_list
-    ).then(
-        disable_votes, [], btn_list
     )
     clear_btn.click(
         clear_history,
